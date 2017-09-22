@@ -14,6 +14,7 @@ struct fb{
 };
 
 void mem_init(char* mem, size_t taille){
+    *(int*) mem = taille;
     /*
     mem->size = taille;
     mem->next_free = NULL;
