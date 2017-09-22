@@ -3,13 +3,21 @@
 /* Implémentation de mem.c
  */
 
+/* on est sur du code existant, li le bien avant 
+ * comment mieux se débrouiller en prog systeme ?
+ * ressources ?
+ */
+
 struct fb{
     size_t size;
     struct fb *next_free;
 };
 
 void mem_init(char* mem, size_t taille){
-
+    /*
+    mem->size = taille;
+    mem->next_free = NULL;
+    */
 }
 
 void* mem_alloc(size_t size){
@@ -17,6 +25,7 @@ void* mem_alloc(size_t size){
 }
 
 void mem_free(void *zone){
+    /* check les double free */
 
 }
 
