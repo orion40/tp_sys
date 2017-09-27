@@ -3,7 +3,8 @@
 /* Implémentation de mem.c
  */
 
-/* block libre  */
+/* structure partagée entre blocs libres et occupés
+blocs libres bool=1; blocs occupés bool=0  */
 struct fb{
     size_t size;
     bool is_free;
