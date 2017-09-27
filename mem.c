@@ -7,7 +7,7 @@
 struct fb{
     size_t size;
     bool is_free;
-    struct fb *next_free;
+    struct fb *next_block;
 };
 
 typedef struct fb fb;
@@ -15,7 +15,7 @@ typedef struct fb fb;
 void mem_init(char* mem, size_t taille){
     /* On cherche à initialiser le tableau mem avec les structures de données
      * nécéssaires, c'est à dire :
-     * *next_free | next_free | rest of array
+     * *next_block | next_block | rest of array
      */
 
     /* On considère mem comme un pointeur sur un pointeur de
@@ -28,7 +28,8 @@ void mem_init(char* mem, size_t taille){
     *(fb**) mem = first_fb;
 
     first_fb->size = taille - sizeof(fb) - sizeof(fb*);
-    first_fb->next_free = NULL;
+    first_fb->next_block = NULL;
+    first_fb->is_free = true;
 }
 
 void* mem_alloc(size_t size){
