@@ -7,11 +7,18 @@
 blocs libres bool=1; blocs occupés bool=0  */
 struct fb{
     size_t size;
-    bool is_free;
+    int is_free; /* 1 = libre, 0 = busy */
     struct fb *next_block;
 };
 
 typedef struct fb fb;
+
+/* TODO: is this correct ? */
+fb* get_next(fb* block){
+    if (block == NULL)
+        return NULL;
+    return block->next_bock;
+}
 
 void mem_init(char* mem, size_t taille){
     /* On cherche à initialiser le tableau mem avec les structures de données
@@ -24,17 +31,33 @@ void mem_init(char* mem, size_t taille){
      * nous.
      */
 
-    // TODO: mettre le bool a faux, check si le pointeurs est ok
     fb *first_fb = (fb*) mem + 1;
     *(fb**) mem = first_fb;
 
     first_fb->size = taille - sizeof(fb) - sizeof(fb*);
     first_fb->next_block = NULL;
-    first_fb->is_free = true;
+    first_fb->is_free = 1;
 }
 
 void* mem_alloc(size_t size){
     /* cast le next_free de fb en (void *) pour eviter un warning */
+    /* D'abord on calcule la bonne_taille multiple de 2 la plus proche de
+     * size + sizeof(fb).
+     * Ensuite, on cherche un bloc libre égal ou supérieur à cette taille
+     * en utilisant la fonction choisie.
+     * Si on trouve (block libre, bonne_taille):
+     *  a la fin de adress_trouve + bonne_taille on met le fb avec ntre *fb_next
+     *  is_free = 1 et taille ancienne_taille - notre taille
+     *  on met ntre taille a bonne_taille
+     *  next_block à address_trouve + bonne_taille
+     *  is_free à 0
+     *  et on renvoie l'adresse (void*) de notre donnée, mais c'est ou ???
+     *  TODO: prbleme de conception ! on met ou les donnes du bloc ?
+     * Si on ne trouve pas:
+     *  ??? Alloué plus de mem ?
+     *  Renvoie NULL
+     */
+
     return NULL;
 }
 
