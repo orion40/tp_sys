@@ -13,11 +13,16 @@ struct fb{
 
 typedef struct fb fb;
 
+fb* block_list_start = NULL;
+size_t max_size = 0;
+fb* (*search_func)(fb*, size_t);
+
+
 /* TODO: is this correct ? */
 fb* get_next(fb* block){
     if (block == NULL)
         return NULL;
-    return block->next_bock;
+    return block->next_block;
 }
 
 void mem_init(char* mem, size_t taille){
@@ -37,15 +42,47 @@ void mem_init(char* mem, size_t taille){
     first_fb->size = taille - sizeof(fb) - sizeof(fb*);
     first_fb->next_block = NULL;
     first_fb->is_free = 1;
+
+    block_list_start = (fb*) mem;
+    max_size = taille;
+
+    /* Fonction de recherche : first fit */
+    search_func = mem_fit_first;
 }
 
 void* mem_alloc(size_t size){
     /* cast le next_free de fb en (void *) pour eviter un warning */
     /* D'abord on calcule la bonne_taille multiple de 2 la plus proche de
      * size + sizeof(fb).
-     * Ensuite, on cherche un bloc libre égal ou supérieur à cette taille
+     */
+    size_t real_size = size + sizeof(fb);
+    size_t good_size = 4;
+    fb* result = NULL;
+    /* size est trop grand */
+    if ( real_size > max_size - sizeof(fb*)) return result;
+
+    /* calcul la taille optimal */
+    while(good_size < real_size){
+        good_size = good_size << 1;
+    }
+    
+    /* la taille optimal est trop grande */
+    if (good_size > max_size - sizeof(fb*)) return result;
+
+
+    /* Ensuite, on cherche un bloc libre égal ou supérieur à cette taille
      * en utilisant la fonction choisie.
-     * Si on trouve (block libre, bonne_taille):
+     */
+
+     result = search_func(block_list_start, good_size);
+     if (result != NULL){
+         /* TODO: MAJ les blocs ! */
+         return (void *)result->next_block;
+     } else {
+        return result;
+     }
+
+    /*  Si on trouve (block libre, bonne_taille):
      *  a la fin de adress_trouve + bonne_taille on met le fb avec ntre *fb_next
      *  is_free = 1 et taille ancienne_taille - notre taille
      *  on met ntre taille a bonne_taille
