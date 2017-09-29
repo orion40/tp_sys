@@ -18,7 +18,6 @@ fb* block_list_start = NULL;
 size_t max_size = 0;
 fb* (*search_func)(fb*, size_t);
 
-
 /* TODO: is this correct ? */
 /* Si on s'en sert, go le mettre en MACRO */
 fb* get_next(fb* block){
@@ -80,9 +79,9 @@ void* mem_alloc(size_t size){
      if (result != NULL){
          /* TODO: MAJ les blocs ! */
          return (void *) (result + sizeof(fb));
-     } else {
-        return result;
      }
+
+     return result;
 
     /*  Si on trouve (block libre, bonne_taille):
      *  a la fin de adress_trouve + bonne_taille on met le fb avec ntre *fb_next
@@ -96,8 +95,6 @@ void* mem_alloc(size_t size){
      *  ??? Alloué plus de mem ?
      *  Renvoie NULL
      */
-
-    return NULL;
 }
 
 void mem_free(void *zone){
@@ -116,6 +113,9 @@ void mem_show(void (*print)(void *, size_t, int free)){
 
 }
 
+/*
+ * TODO: plan de comment on fait ça
+ * */
 struct fb* mem_fit_first(struct fb *list, size_t size){
     return NULL;
 }
