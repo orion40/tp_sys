@@ -13,12 +13,14 @@ struct fb{
 
 typedef struct fb fb;
 
+/* TODO: demander au prof si le nom est clair ou pas */
 fb* block_list_start = NULL;
 size_t max_size = 0;
 fb* (*search_func)(fb*, size_t);
 
 
 /* TODO: is this correct ? */
+/* Si on s'en sert, go le mettre en MACRO */
 fb* get_next(fb* block){
     if (block == NULL)
         return NULL;
@@ -36,15 +38,14 @@ void mem_init(char* mem, size_t taille){
      * nous.
      */
 
-    fb *first_fb = (fb*) mem + 1;
-    *(fb**) mem = first_fb;
+    fb *first_fb = (fb*) mem ;
 
-    first_fb->size = taille - sizeof(fb) - sizeof(fb*);
+    first_fb->size = taille - sizeof(fb);
     first_fb->next_block = NULL;
     first_fb->is_free = 1;
 
     block_list_start = (fb*) mem;
-    max_size = taille;
+    max_size = first_fb->size;
 
     /* Fonction de recherche : first fit */
     search_func = mem_fit_first;
@@ -55,20 +56,21 @@ void* mem_alloc(size_t size){
     /* D'abord on calcule la bonne_taille multiple de 2 la plus proche de
      * size + sizeof(fb).
      */
+    /* TODO: on utilise le *fb de fb donc il faut enlever son sizeof */
     size_t real_size = size + sizeof(fb);
-    size_t good_size = 4;
-    fb* result = NULL;
+    size_t good_size = 4; /* on commence à 4 car la taille réelle est 
+                             forcement supérieure */
+    void* result = NULL;
     /* size est trop grand */
-    if ( real_size > max_size - sizeof(fb*)) return result;
+    if ( real_size > max_size) return result;
 
-    /* calcul la taille optimal */
+    /* calcul la taille optimale */
     while(good_size < real_size){
         good_size = good_size << 1;
     }
     
-    /* la taille optimal est trop grande */
-    if (good_size > max_size - sizeof(fb*)) return result;
-
+    /* la taille optimale est trop grande */
+    if (good_size > max_size) return result;
 
     /* Ensuite, on cherche un bloc libre égal ou supérieur à cette taille
      * en utilisant la fonction choisie.
@@ -77,7 +79,7 @@ void* mem_alloc(size_t size){
      result = search_func(block_list_start, good_size);
      if (result != NULL){
          /* TODO: MAJ les blocs ! */
-         return (void *)result->next_block;
+         return (void *) (result + sizeof(fb));
      } else {
         return result;
      }
