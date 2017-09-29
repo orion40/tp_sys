@@ -90,7 +90,6 @@ void* mem_alloc(size_t size){
      *  next_block à address_trouve + bonne_taille
      *  is_free à 0
      *  et on renvoie l'adresse (void*) de notre donnée, mais c'est ou ???
-     *  TODO: prbleme de conception ! on met ou les donnes du bloc ?
      * Si on ne trouve pas:
      *  ??? Alloué plus de mem ?
      *  Renvoie NULL
@@ -117,7 +116,12 @@ void mem_show(void (*print)(void *, size_t, int free)){
  * TODO: plan de comment on fait ça
  * */
 struct fb* mem_fit_first(struct fb *list, size_t size){
-    return NULL;
+    fb* current_block = list;
+    while ((current_block->size < size || current_block->is_free == 0) && current_block != NULL){
+        current_block = current_block->next_block;
+    }
+
+    return current_block;
 }
 
 /* Si vous avez le temps */
