@@ -1,5 +1,8 @@
 #include "mem.h"
 
+/* TODO: a virer */
+#include "stdio.h"
+
 /* Implémentation de mem.c
  */
 
@@ -47,7 +50,7 @@ void mem_init(char* mem, size_t taille){
     max_size = first_fb->size;
 
     /* Fonction de recherche : first fit */
-    search_func = mem_fit_first;
+    mem_fit(mem_fit_first);
 }
 
 void* mem_alloc(size_t size){
@@ -98,12 +101,13 @@ void* mem_alloc(size_t size){
 
 void mem_free(void *zone){
     /* check les double free */
-    if((zone->isfree)==1){
+    if((((fb*)zone)->is_free) == 1){
     	printf("déjà libre");//pour voir le cas dans les tests
     	return;
     }
     /*pour vérifier si le bloc précedent est libre doit parcourir la file
     pour le trouver*/
+    /*
     fb *prec=NULL;//on mémorise le bloc précédent
     while(courant!=zone && courant!=NULL){
     	prec=courant;
@@ -139,6 +143,7 @@ void mem_free(void *zone){
     		//prec->next_block=;
     	}
     }
+    */
 }
 
 size_t mem_get_size(void *zone){
@@ -149,7 +154,12 @@ size_t mem_get_size(void *zone){
 
 /* Itérateur sur le contenu de l'allocateur */
 void mem_show(void (*print)(void *, size_t, int free)){
+    //fb* current_block = block_list_start;
 
+}
+
+void mem_fit(mem_fit_function_t* fit_func){
+    search_func = fit_func;
 }
 
 /*
