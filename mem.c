@@ -16,7 +16,6 @@ struct fb{
 
 typedef struct fb fb;
 
-/* TODO: demander au prof si le nom est clair ou pas */
 fb* block_list_start = NULL;
 size_t max_size = 0;
 fb* (*search_func)(fb*, size_t);
@@ -81,6 +80,11 @@ void* mem_alloc(size_t size){
      result = search_func(block_list_start, good_size);
      if (result != NULL){
          /* TODO: MAJ les blocs ! */
+         /* Création du bloc libre suivant si besoin */
+         //(fb*)(result + sizeof(fb) + good_size) 
+
+         (fb*) result->size = good_size;
+         (fb*) result->is_free = 0;
          return (void *) (result + sizeof(fb));
      }
 
@@ -154,8 +158,11 @@ size_t mem_get_size(void *zone){
 
 /* Itérateur sur le contenu de l'allocateur */
 void mem_show(void (*print)(void *, size_t, int free)){
-    //fb* current_block = block_list_start;
-
+    fb* current_block = block_list_start;
+    while (current_block != NULL){
+        print(current_block + sizeof(fb), current_block->size, current_block->is_free);
+        current_block = current_block->next_block;
+    }
 }
 
 void mem_fit(mem_fit_function_t* fit_func){
