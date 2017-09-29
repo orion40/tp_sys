@@ -83,8 +83,8 @@ void* mem_alloc(size_t size){
          /* Création du bloc libre suivant si besoin */
          //(fb*)(result + sizeof(fb) + good_size) 
 
-         (fb*) result->size = good_size;
-         (fb*) result->is_free = 0;
+         ((fb*)result)->size = good_size;
+         ((fb*)result)->is_free = 0;
          return (void *) (result + sizeof(fb));
      }
 
