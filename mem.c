@@ -99,7 +99,47 @@ void* mem_alloc(size_t size){
 
 void mem_free(void *zone){
     /* check les double free */
-
+    if((zone->isfree)==1){
+    	printf("déjà libre");//pour voir le cas dans les tests
+    	return;
+    }
+    /*pour vérifier si le bloc précedent est libre doit parcourir la file
+    pour le trouver*/
+    fb *prec=NULL;//on mémorise le bloc précédent
+    while(courant!=zone && courant!=NULL){
+    	prec=courant;
+    	courant=courant-> next_block;
+    }
+    if(courant==NULL){
+    	printf("bloc inexistant");//pour voir le cas dans les tests
+    	return;
+    }
+    if(prec->is_free==1){
+    	if((courant->next_block)==NULL || (courant->next_block)->isfree==0){
+    		//prec libre,suiv occ ou null
+    		prec->size=(prec->size)+(courant->size);
+    		prec->next_block=courant->next_block;
+    	}else{
+    		//prec et suiv libres
+    		prec->size=(prec->size)+(courant->size)+(courant->next_block->size);
+    		prec->next_block=(courant->next_block)->next_block;
+    	}
+    }else{
+    	courant->is_free=1;
+    	if(){
+    		//prec occ,suiv libre
+    		//prec->size=;
+    		//prec->next_block=;
+    	}else if(){
+    		//prec occ et suiv null
+    		//prec->size=;
+    		//prec->next_block=;
+    	}else{
+    		//prec et suiv occ
+    		//prec->size=;
+    		//prec->next_block=;
+    	}
+    }
 }
 
 size_t mem_get_size(void *zone){
