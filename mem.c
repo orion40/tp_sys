@@ -29,7 +29,7 @@ fb* get_next(fb* block){
 void mem_init(char* mem, size_t taille){
     /* On cherche à initialiser le tableau mem avec les structures de données
      * nécéssaires, c'est à dire :
-     * *next_block | next_block | rest of array
+     * | fb | rest of array
      */
 
     /* On considère mem comme un pointeur sur un pointeur de
