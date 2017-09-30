@@ -52,6 +52,9 @@ void mem_init(char* mem, size_t taille){
     mem_fit(mem_fit_first);
 }
 
+/* TODO: fix le fait de potentiellement écraser le fb du prochain
+ * bloc occupé.
+ */
 void* mem_alloc(size_t size){
     /* cast le next_free de fb en (void *) pour eviter un warning */
     /* D'abord on calcule la bonne_taille multiple de 2 la plus proche de
