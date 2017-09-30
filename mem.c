@@ -41,7 +41,7 @@ void mem_init(char* mem, size_t taille){
 
     fb *first_fb = (fb*) mem ;
 
-    first_fb->size = taille - sizeof(fb);
+    first_fb->size = taille;
     first_fb->next_block = NULL;
     first_fb->is_free = 1;
 
@@ -57,10 +57,10 @@ void* mem_alloc(size_t size){
     /* D'abord on calcule la bonne_taille multiple de 2 la plus proche de
      * size + sizeof(fb).
      */
-    /* TODO: on utilise le *fb de fb donc il faut enlever son sizeof */
     size_t real_size = size + sizeof(fb);
-    size_t good_size = 4; /* on commence à 4 car la taille réelle est 
-                             forcement supérieure */
+    size_t good_size = 32; /* on commence à 32 car la taille réelle est 
+                             forcement supérieure, vu que le struct est
+                             de taille 24 */
     void* result = NULL;
     /* size est trop grand */
     if ( real_size > max_size) return result;
@@ -79,73 +79,83 @@ void* mem_alloc(size_t size){
 
      result = search_func(block_list_start, good_size);
      if (result != NULL){
-         /* TODO: MAJ les blocs ! */
-         /* Création du bloc libre suivant si besoin */
-         //(fb*)(result + sizeof(fb) + good_size) 
+         /* Création du bloc libre suivant s'il reste de la place */
+         if (((fb*)result)->size - good_size > sizeof(fb) + 4){
+             ((fb*)(result + good_size))->size =
+                 ((fb*)result)->size - good_size;
+
+             ((fb*)(result + good_size))->is_free = 1;
+
+             ((fb*)(result + good_size))->next_block =
+                 ((fb*)result)->next_block;
+         }
 
          ((fb*)result)->size = good_size;
          ((fb*)result)->is_free = 0;
+         ((fb*)result)->next_block = result + good_size;
+
+
          return (void *) (result + sizeof(fb));
      }
 
      return result;
 
-    /*  Si on trouve (block libre, bonne_taille):
-     *  a la fin de adress_trouve + bonne_taille on met le fb avec ntre *fb_next
-     *  is_free = 1 et taille ancienne_taille - notre taille
-     *  on met ntre taille a bonne_taille
-     *  next_block à address_trouve + bonne_taille
-     *  is_free à 0
-     *  et on renvoie l'adresse (void*) de notre donnée, mais c'est ou ???
-     * Si on ne trouve pas:
-     *  ??? Alloué plus de mem ?
-     *  Renvoie NULL
-     */
+     /*  Si on trouve (block libre, bonne_taille):
+      *  a la fin de adress_trouve + bonne_taille on met le fb avec ntre *fb_next
+      *  is_free = 1 et taille ancienne_taille - notre taille
+      *  on met ntre taille a bonne_taille
+      *  next_block à address_trouve + bonne_taille
+      *  is_free à 0
+      *  et on renvoie l'adresse (void*) de notre donnée, mais c'est ou ???
+      * Si on ne trouve pas:
+      *  ??? Alloué plus de mem ?
+      *  Renvoie NULL
+      */
 }
 
 void mem_free(void *zone){
     /* check les double free */
     if((((fb*)zone)->is_free) == 1){
-    	printf("déjà libre");//pour voir le cas dans les tests
-    	return;
+        printf("déjà libre");//pour voir le cas dans les tests
+        return;
     }
     /*pour vérifier si le bloc précedent est libre doit parcourir la file
-    pour le trouver*/
+      pour le trouver*/
     /*
-    fb *prec=NULL;//on mémorise le bloc précédent
-    while(courant!=zone && courant!=NULL){
-    	prec=courant;
-    	courant=courant-> next_block;
-    }
-    if(courant==NULL){
-    	printf("bloc inexistant");//pour voir le cas dans les tests
-    	return;
-    }
-    if(prec->is_free==1){
-    	if((courant->next_block)==NULL || (courant->next_block)->isfree==0){
-    		//prec libre,suiv occ ou null
-    		prec->size=(prec->size)+(courant->size);
-    		prec->next_block=courant->next_block;
-    	}else{
-    		//prec et suiv libres
-    		prec->size=(prec->size)+(courant->size)+(courant->next_block->size);
-    		prec->next_block=(courant->next_block)->next_block;
-    	}
+       fb *prec=NULL;//on mémorise le bloc précédent
+       while(courant!=zone && courant!=NULL){
+       prec=courant;
+       courant=courant-> next_block;
+       }
+       if(courant==NULL){
+       printf("bloc inexistant");//pour voir le cas dans les tests
+       return;
+       }
+       if(prec->is_free==1){
+       if((courant->next_block)==NULL || (courant->next_block)->isfree==0){
+    //prec libre,suiv occ ou null
+    prec->size=(prec->size)+(courant->size);
+    prec->next_block=courant->next_block;
     }else{
-    	courant->is_free=1;
-    	if(){
-    		//prec occ,suiv libre
-    		//prec->size=;
-    		//prec->next_block=;
-    	}else if(){
-    		//prec occ et suiv null
-    		//prec->size=;
-    		//prec->next_block=;
-    	}else{
-    		//prec et suiv occ
-    		//prec->size=;
-    		//prec->next_block=;
-    	}
+    //prec et suiv libres
+    prec->size=(prec->size)+(courant->size)+(courant->next_block->size);
+    prec->next_block=(courant->next_block)->next_block;
+    }
+    }else{
+    courant->is_free=1;
+    if(){
+    //prec occ,suiv libre
+    //prec->size=;
+    //prec->next_block=;
+    }else if(){
+    //prec occ et suiv null
+    //prec->size=;
+    //prec->next_block=;
+    }else{
+    //prec et suiv occ
+    //prec->size=;
+    //prec->next_block=;
+    }
     }
     */
 }
@@ -169,13 +179,17 @@ void mem_fit(mem_fit_function_t* fit_func){
     search_func = fit_func;
 }
 
-/*
- * TODO: plan de comment on fait ça
- * */
+/* On parcourt la liste en testant si les blocs on suffisament d'espace, 
+ * et qu'ils sont libres. On fait attention a tester si current_block
+ * est NULL, afin d'éviter un segfault.
+ */
 struct fb* mem_fit_first(struct fb *list, size_t size){
     fb* current_block = list;
-    while ((current_block->size < size || current_block->is_free == 0) && current_block != NULL){
-        current_block = current_block->next_block;
+    if (current_block != NULL){
+        while ((current_block->size < size || current_block->is_free == 0)){
+            current_block = current_block->next_block;
+            if (current_block == NULL) break;
+        }
     }
 
     return current_block;
