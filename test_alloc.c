@@ -12,6 +12,7 @@
 
 static void *alloc(size_t estimate) {
     void *result;
+    result = mem_alloc(estimate);
 
     debug("Alloced %05zu bytes at %p\n", estimate, result);
     return result;
