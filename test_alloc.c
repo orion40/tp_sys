@@ -64,16 +64,13 @@ void alloc_alot(){
     mem_free(pointers[14]);
     mem_free(pointers[15]);
     mem_show(afficher_zone);
-    printf("Alloc de 2\n");
     pointers[10] = alloc(2);
     mem_show(afficher_zone);
 }
 
 int main(int argc, char *argv[]) {
     srand(time(NULL));
-    fprintf(stderr, "Test réalisant plusieurs allocations de taille variable.\n"
-            "Définir DEBUG à la compilation pour avoir une sortie un peu plus verbeuse."
-            "\n");
+    fprintf(stderr, "Test réalisant plusieurs allocations de taille variable.\n");
     mem_init(get_memory_adr(), get_memory_size());
 
     mem_show(afficher_zone);
