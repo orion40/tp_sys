@@ -52,18 +52,14 @@ void mem_init(char* mem, size_t taille){
     mem_fit(mem_fit_first);
 }
 
-/* TODO: fix le fait de potentiellement écraser le fb du prochain
- * bloc occupé.
- */
 void* mem_alloc(size_t size){
-    /* cast le next_free de fb en (void *) pour eviter un warning */
     /* D'abord on calcule la bonne_taille multiple de 2 la plus proche de
      * size + sizeof(fb).
      */
     size_t real_size = size + sizeof(fb);
     size_t good_size = 32; /* on commence à 32 car la taille réelle est 
-                             forcement supérieure, vu que le struct est
-                             de taille 24 */
+                             forcement supérieure ou égale , vu que la 
+                             struct est de taille 24 */
     void* result = NULL;
     /* size est trop grand */
     if ( real_size > max_size) return result;
@@ -77,12 +73,13 @@ void* mem_alloc(size_t size){
     if (good_size > max_size) return result;
 
     /* Ensuite, on cherche un bloc libre égal ou supérieur à cette taille
-     * en utilisant la fonction choisie.
+     * en utilisant la fonction choisie; si on ne trouve pas, result
+     * vaudra NULL et sera renvoyé à l'utilisateur.
      */
-
      result = search_func(block_list_start, good_size);
      if (result != NULL){
-         /* Création du bloc libre suivant s'il reste de la place */
+         /* Création du bloc libre suivant s'il reste de la place 
+          * en mémoire */
          if (((fb*)result)->size - good_size > sizeof(fb) + 4){
              ((fb*)(result + good_size))->size =
                  ((fb*)result)->size - good_size;
@@ -92,6 +89,9 @@ void* mem_alloc(size_t size){
              ((fb*)(result + good_size))->next_block =
                  ((fb*)result)->next_block;
          }
+         /* On met à jour le bloc que l'on a récupéré avec sa taille,
+          * son état (occupé), et l'adresse du prochain block
+          */
 
          ((fb*)result)->size = good_size;
          ((fb*)result)->is_free = 0;
@@ -101,23 +101,11 @@ void* mem_alloc(size_t size){
      }
 
      return result;
-
-     /*  Si on trouve (block libre, bonne_taille):
-      *  a la fin de adress_trouve + bonne_taille on met le fb avec ntre *fb_next
-      *  is_free = 1 et taille ancienne_taille - notre taille
-      *  on met ntre taille a bonne_taille
-      *  next_block à address_trouve + bonne_taille
-      *  is_free à 0
-      *  et on renvoie l'adresse (void*) de notre donnée, mais c'est ou ???
-      * Si on ne trouve pas:
-      *  ??? Alloué plus de mem ?
-      *  Renvoie NULL
-      */
 }
 
 void mem_free(void *zone){
-    /* check les double free */
     zone = zone - sizeof(fb);
+    /* vérifie les double free */
     if((((fb*)zone)->is_free) == 1){
         printf("déjà libre\n");//pour voir le cas dans les tests
         return;
@@ -168,10 +156,11 @@ void mem_free(void *zone){
     }
 }
 
+/* la zone envoyée en paramètre est ce que l'utilisateur peut utiliser,
+ * il faut donc décaler de sizeof(fb) pour accéder à la vrai structure
+ */
 size_t mem_get_size(void *zone){
-    // Check avec le prof si ça convertir bien
-    // zone en pointeur vers fb et qu'on accede bien à la taille
-    return ((fb*)zone - sizeof(size_t))->size;
+    return ((fb*)(zone - sizeof(fb)))->size;
 }
 
 /* Itérateur sur le contenu de l'allocateur */
@@ -183,6 +172,8 @@ void mem_show(void (*print)(void *, size_t, int free)){
     }
 }
 
+/* notre fonction de recherche est mis à jour
+ */
 void mem_fit(mem_fit_function_t* fit_func){
     search_func = fit_func;
 }
