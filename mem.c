@@ -20,25 +20,9 @@ fb* block_list_start = NULL;
 size_t max_size = 0;
 fb* (*search_func)(fb*, size_t);
 
-/* TODO: is this correct ? */
-/* Si on s'en sert, go le mettre en MACRO */
-fb* get_next(fb* block){
-    if (block == NULL)
-        return NULL;
-    return block->next_block;
-}
-
+/* Iitialisation de la mémoire : on crée la première structure fb
+ */
 void mem_init(char* mem, size_t taille){
-    /* On cherche à initialiser le tableau mem avec les structures de données
-     * nécéssaires, c'est à dire :
-     * | fb | rest of array
-     */
-
-    /* On considère mem comme un pointeur sur un pointeur de
-     * fb, et on lui donne l'adresse qui sera juste après
-     * nous.
-     */
-
     fb *first_fb = (fb*) mem ;
 
     first_fb->size = taille;
@@ -48,7 +32,6 @@ void mem_init(char* mem, size_t taille){
     block_list_start = (fb*) mem;
     max_size = first_fb->size;
 
-    /* Fonction de recherche : first fit */
     mem_fit(mem_fit_first);
 }
 
