@@ -9,14 +9,14 @@
 #include <time.h>
 #include <assert.h>
 
-#define NB_TESTS 40
+#define NB_TESTS 20
 #define NB_POINTERS 40
 
 static void *alloc(size_t estimate) {
     void *result;
     result = mem_alloc(estimate);
 
-    debug("Alloced %05zu bytes at %p\n", estimate, result);
+    debug("Alloced %zu bytes at %p\n", estimate, result);
     return result;
 }
 
@@ -27,13 +27,13 @@ static void *big_alloc(size_t estimate) {
         estimate--;
     }
 
-    debug("Alloced %05zu bytes at %p\n", estimate, result);
+    debug("Alloced %zu bytes at %p\n", estimate, result);
     return result;
 }
 
 void afficher_zone(void *adresse, size_t taille, int free)
 {
-    printf("Zone %s, Adresse : %lx, Taille : %lu\n", free?"libre":"occupee",
+    printf("Zone %s, Adresse : %lx, Taille : %zu\n", free?"libre":"occupee",
             (unsigned long) adresse, (unsigned long) taille);
 }
 
@@ -56,8 +56,17 @@ void alloc_alot(){
         pointers[i] = alloc(size);
     }
     mem_show(afficher_zone);
-    free(pointers[10]);
-    alloc(rand()%1000);
+    printf("Libération\n");
+    mem_free(pointers[10]);
+    mem_free(pointers[11]);
+    mem_free(pointers[11]); /* le double free est détecté */
+    mem_free(pointers[13]);
+    mem_free(pointers[14]);
+    mem_free(pointers[15]);
+    mem_show(afficher_zone);
+    printf("Alloc de 2\n");
+    pointers[10] = alloc(2);
+    mem_show(afficher_zone);
 }
 
 int main(int argc, char *argv[]) {
@@ -67,17 +76,20 @@ int main(int argc, char *argv[]) {
             "\n");
     mem_init(get_memory_adr(), get_memory_size());
 
+    mem_show(afficher_zone);
     char* test = (char*) alloc(50);
     for (int i = 0; i < 50; i++){
-        test[i] = "K";
+        test[i] = 0;
     }
     test[49] = 0;
-    printf("%s", test);
+    printf("Test (%p): %s\n", test, test);
     
+    /*
     mem_show(afficher_zone);
     mem_free(test);
     mem_show(afficher_zone);
-    //alloc_alot();
+    */
+    alloc_alot();
     //alloc_big();
 
     // TEST OK
