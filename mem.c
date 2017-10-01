@@ -118,42 +118,43 @@ void* mem_alloc(size_t size){
 
 void mem_free(void *zone){
     /* check les double free */
+    //zone = zone - sizeof(fb);
     if((((fb*)zone)->is_free) == 1){
-        printf("déjà libre");//pour voir le cas dans les tests
+        printf("déjà libre\n");//pour voir le cas dans les tests
         return;
     }
     /*pour vérifier si le bloc précedent est libre doit parcourir la file
       pour le trouver*/
     fb *courant=block_list_start;
-	fb *prec=NULL;//on mémorise le bloc précédent
-	while(courant!=zone && courant!=NULL){
-		prec=courant;
-		courant=courant-> next_block;
-	}
-	if(courant==NULL){
-		printf("bloc inexistant");//pour voir le cas dans les tests
-		return;
-	}
-	if(prec->is_free==1){
-		if((courant->next_block)==NULL || (courant->next_block)->is_free==0){
-    		//prec libre,suiv occ ou null
-    		prec->size=(prec->size)+(courant->size);
-    		prec->next_block=courant->next_block;
-    	}else{
-    		//prec et suiv libres
-    		prec->size=(prec->size)+(courant->size)+(courant->next_block->size);
-    		prec->next_block=(courant->next_block)->next_block;
-    	}
+    fb *prec=NULL;//on mémorise le bloc précédent
+    while(courant!=zone && courant!=NULL){
+        prec=courant;
+        courant=courant-> next_block;
+    }
+    if(courant==NULL){
+        printf("bloc inexistant\n");//pour voir le cas dans les tests
+        return;
+    }
+    if(prec->is_free==1){
+        if((courant->next_block)==NULL || (courant->next_block)->is_free==0){
+            //prec libre,suiv occ ou null
+            prec->size=(prec->size)+(courant->size);
+            prec->next_block=courant->next_block;
+        }else{
+            //prec et suiv libres
+            prec->size=(prec->size)+(courant->size)+(courant->next_block->size);
+            prec->next_block=(courant->next_block)->next_block;
+        }
     }else{
-    	courant->is_free=1;
-    	if(courant->next_block!=NULL && (courant->next_block)->is_free==1){
-    		//prec occ,suiv libre
-    		courant->size=(courant->size)+(courant->next_block)->size;
-    		courant->next_block=(courant->next_block)->next_block;
-    	}
-    	//prec occ et suiv null->rien de plus à faire
-    	//prec et suiv occ->rien de plus à faire
-	}
+        courant->is_free=1;
+        if(courant->next_block!=NULL && (courant->next_block)->is_free==1){
+            //prec occ,suiv libre
+            courant->size=(courant->size)+(courant->next_block)->size;
+            courant->next_block=(courant->next_block)->next_block;
+        }
+        //prec occ et suiv null->rien de plus à faire
+        //prec et suiv occ->rien de plus à faire
+    }
 }
 
 size_t mem_get_size(void *zone){
