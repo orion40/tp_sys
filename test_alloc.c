@@ -80,13 +80,14 @@ int main(int argc, char *argv[]) {
     }
     test[49] = 0;
     printf("Test (%p): %s\n", test, test);
+    alloc(4);
     
     /*
     mem_show(afficher_zone);
     mem_free(test);
     mem_show(afficher_zone);
     */
-    alloc_alot();
+    //alloc_alot();
     //alloc_big();
 
     // TEST OK

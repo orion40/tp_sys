@@ -10,27 +10,37 @@
 blocs libres bool=1; blocs occupés bool=0  */
 struct fb{
     size_t size;
-    int is_free; /* 1 = libre, 0 = busy */
     struct fb *next_block;
 };
 
-typedef struct fb fb;
+/* structure de blocs alloués
+ */
+struct ab{
+    size_t size;
+    struct ab *next_busy;
+};
 
-fb* block_list_start = NULL;
+typedef struct fb fb;
+typedef struct ab ab;
+
+fb* free_block_list_start = NULL;
+ab* allocated_block_list_start = NULL;
 size_t max_size = 0;
 fb* (*search_func)(fb*, size_t);
 
 /* Iitialisation de la mémoire : on crée la première structure fb
  */
 void mem_init(char* mem, size_t taille){
-    fb *first_fb = (fb*) mem ;
+    fb *first_fb = (fb*) mem;
 
     first_fb->size = taille;
     first_fb->next_block = NULL;
-    first_fb->is_free = 1;
 
-    block_list_start = (fb*) mem;
+    free_block_list_start = (fb*) mem;
     max_size = first_fb->size;
+
+    /* aucun bloc n'est alloué pour le moment */
+    allocated_block_list_start = NULL;
 
     mem_fit(mem_fit_first);
 }
@@ -59,7 +69,7 @@ void* mem_alloc(size_t size){
      * en utilisant la fonction choisie; si on ne trouve pas, result
      * vaudra NULL et sera renvoyé à l'utilisateur.
      */
-     result = search_func(block_list_start, good_size);
+     result = search_func(free_block_list_start, good_size);
      if (result != NULL){
          /* Création du bloc libre suivant s'il reste de la place 
           * en mémoire */
@@ -67,18 +77,23 @@ void* mem_alloc(size_t size){
              ((fb*)(result + good_size))->size =
                  ((fb*)result)->size - good_size;
 
-             ((fb*)(result + good_size))->is_free = 1;
-
-             ((fb*)(result + good_size))->next_block =
-                 ((fb*)result)->next_block;
+             //((fb*)(result + good_size))->next_block =
+               //  ((fb*)result)->next_block;
          }
          /* On met à jour le bloc que l'on a récupéré avec sa taille,
           * son état (occupé), et l'adresse du prochain block
           */
 
-         ((fb*)result)->size = good_size;
-         ((fb*)result)->is_free = 0;
-         ((fb*)result)->next_block = result + good_size;
+         /* TODO : fix this;
+          * comment alloué de la mémoire et mettre à jours correctement
+          * les blocs libres et les blocs non alloués ?
+          */
+
+         free_block_list_start = ((fb*)result)->next_block;
+
+         ((ab*)result)->size = good_size;
+         ((ab*)result)->next_busy = allocated_block_list_start;
+         allocated_block_list_start = ((ab*)result);
 
          return (void *) (result + sizeof(fb));
      }
@@ -87,56 +102,54 @@ void* mem_alloc(size_t size){
 }
 
 void mem_free(void *zone){
-    zone = zone - sizeof(fb);
-    /* vérifie les double free */
-    if((((fb*)zone)->is_free) == 1){
-        printf("déjà libre\n");//pour voir le cas dans les tests
-        return;
-    }
-    /*pour vérifier si le bloc précedent est libre doit parcourir la file
-      pour le trouver*/
-    fb *courant=block_list_start;
-    fb *prec=NULL, *next = NULL;//on mémorise le bloc précédent
-    while(courant!=zone && courant!=NULL){
-        prec=courant;
-        courant=courant-> next_block;
-    }
-    if(courant==NULL){
-        printf("bloc inexistant\n");//pour voir le cas dans les tests
-        return;
-    }
-    if (prec != NULL){
-        if(prec->is_free==1){
-            if((courant->next_block)==NULL || (courant->next_block)->is_free==0){
-                //prec libre,suiv occ ou null
-                prec->size=(prec->size)+(courant->size);
-                prec->next_block=courant->next_block;
-            }else{
-                //prec et suiv libres
-                prec->size=(prec->size)+(courant->size)+(courant->next_block->size);
-                prec->next_block=(courant->next_block)->next_block;
-            }
-        }else{
-            courant->is_free=1;
-            if(courant->next_block!=NULL && (courant->next_block)->is_free==1){
-                //prec occ,suiv libre
-                courant->size=(courant->size)+(courant->next_block)->size;
-                courant->next_block=(courant->next_block)->next_block;
-            }
-            //prec occ et suiv null->rien de plus à faire
-            //prec et suiv occ->rien de plus à faire
-        }
-    }else{
-        /* cas ou l'on libère le premier bloc */
-        courant->is_free = 1;
-        next = courant->next_block;
-        if (next != NULL){
-            if (next->is_free == 1){
-                courant->size += next->size;
-                courant->next_block = next->next_block;
-            }
-        }
-    }
+//    zone = zone - sizeof(fb);
+//    /* vérifie les double free */
+//    // est-ce que le bloc que l'on libère est dans les alloués ?
+//
+//    /*pour vérifier si le bloc précedent est libre doit parcourir la file
+//      pour le trouver*/
+//    fb *courant=block_list_start;
+//    fb *prec=NULL, *next = NULL;//on mémorise le bloc précédent
+//    while(courant!=zone && courant!=NULL){
+//        prec=courant;
+//        courant=courant-> next_block;
+//    }
+//    if(courant==NULL){
+//        printf("bloc inexistant\n");//pour voir le cas dans les tests
+//        return;
+//    }
+//    if (prec != NULL){
+//        if(prec->is_free==1){
+//            if((courant->next_block)==NULL || (courant->next_block)->is_free==0){
+//                //prec libre,suiv occ ou null
+//                prec->size=(prec->size)+(courant->size);
+//                prec->next_block=courant->next_block;
+//            }else{
+//                //prec et suiv libres
+//                prec->size=(prec->size)+(courant->size)+(courant->next_block->size);
+//                prec->next_block=(courant->next_block)->next_block;
+//            }
+//        }else{
+//            courant->is_free=1;
+//            if(courant->next_block!=NULL && (courant->next_block)->is_free==1){
+//                //prec occ,suiv libre
+//                courant->size=(courant->size)+(courant->next_block)->size;
+//                courant->next_block=(courant->next_block)->next_block;
+//            }
+//            //prec occ et suiv null->rien de plus à faire
+//            //prec et suiv occ->rien de plus à faire
+//        }
+//    }else{
+//        /* cas ou l'on libère le premier bloc */
+//        courant->is_free = 1;
+//        next = courant->next_block;
+//        if (next != NULL){
+//            if (next->is_free == 1){
+//                courant->size += next->size;
+//                courant->next_block = next->next_block;
+//            }
+//        }
+//    }
 }
 
 /* la zone envoyée en paramètre est ce que l'utilisateur peut utiliser,
@@ -148,10 +161,15 @@ size_t mem_get_size(void *zone){
 
 /* Itérateur sur le contenu de l'allocateur */
 void mem_show(void (*print)(void *, size_t, int free)){
-    fb* current_block = block_list_start;
-    while (current_block != NULL){
-        print(current_block + sizeof(fb), current_block->size, current_block->is_free);
-        current_block = current_block->next_block;
+    fb* current_free_block = free_block_list_start;
+    ab* current_busy_block = allocated_block_list_start;
+    while (current_free_block != NULL){
+        print(current_free_block + sizeof(fb), current_free_block->size, 1);
+        current_free_block = current_free_block->next_block;
+    }
+    while (current_busy_block != NULL){
+        print(current_busy_block + sizeof(ab), current_busy_block->size, 0);
+        current_busy_block = current_busy_block->next_busy;
     }
 }
 
@@ -168,7 +186,7 @@ void mem_fit(mem_fit_function_t* fit_func){
 struct fb* mem_fit_first(struct fb *list, size_t size){
     fb* current_block = list;
     if (current_block != NULL){
-        while ((current_block->size < size || current_block->is_free == 0)){
+        while ((current_block->size < size)){
             current_block = current_block->next_block;
             if (current_block == NULL) break;
         }
