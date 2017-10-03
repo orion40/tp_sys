@@ -111,11 +111,20 @@ void mem_free(void *zone){
     zone = zone - sizeof(ab);
     /* vérifie les double free */
     // est-ce que le bloc que l'on libère est dans les alloués ?
+    // TODO: il faut parcourir la BONNE liste pour les blocs libres !!!
 
     /*pour vérifier si le bloc précedent est libre doit parcourir la file
       pour le trouver*/
-    ab *courant = allocated_block_list_start;
-    ab *prec=NULL, *next = NULL;//on mémorise le bloc précédent
+    fb *fb_courant = free_block_list_start;
+    fb *fb_prec = NULL, *fb_suivant = NULL;
+
+    ab *ab_courant = allocated_block_list_start;
+    ab *ab_prec=NULL, *next = NULL;//on mémorise le bloc précédent
+
+    /* il faudrait ajouter le bloc que l'on libère à la liste des 
+     * blocks libres.
+     */
+
     while(courant != zone && courant != NULL){
         prec=courant;
         courant=courant->next_busy;
@@ -125,18 +134,19 @@ void mem_free(void *zone){
         return;
     }
     if (prec != NULL){
-        /* On teste si le bloc précédent est bien à coté de nous */
+        /* On teste si le bloc occupé précédent est bien à coté de nous */
         if(prec + prec->size == courant){
-            if((courant->next_busy)==NULL || (courant->next_busy) != (courant + courant->size)){
+            if((courant->next_busy) == NULL || (courant->next_busy) != (courant + courant->size)){
                 //prec libre,suiv occ ou null
                 prec->size=(prec->size)+(courant->size);
                 prec->next_busy=courant->next_busy;
             }else{
                 //prec et suiv libres
-                prec->size=(prec->size)+(courant->size)+(courant->next_busy->size);
+                prec->size += (courant->size)+(courant->next_busy->size);
                 prec->next_busy=(courant->next_busy)->next_busy;
             }
         }else{
+            /* le bloc précédent n'est pas occupé */
             if(courant->next_busy!=NULL && (courant->next_busy) != (courant + courant->size)){
                 //prec occ,suiv libre
                 courant->size=(courant->size)+(courant->next_busy)->size;
@@ -168,14 +178,22 @@ size_t mem_get_size(void *zone){
 void mem_show(void (*print)(void *, size_t, int free)){
     fb* current_free_block = free_block_list_start;
     ab* current_busy_block = allocated_block_list_start;
+    int free = 0, busy = 0;
     while (current_free_block != NULL){
+        free++;
         print(current_free_block + sizeof(fb), current_free_block->size, 1);
         current_free_block = current_free_block->next_block;
     }
+
+    printf("%d blocs libres détectés.\n", free);
+
     while (current_busy_block != NULL){
+        busy++;
         print(current_busy_block + sizeof(ab), current_busy_block->size, 0);
         current_busy_block = current_busy_block->next_busy;
     }
+
+    printf("%d blocs occupés détectés.\n", busy);
 }
 
 /* notre fonction de recherche est mis à jour
