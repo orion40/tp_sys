@@ -125,6 +125,8 @@ void mem_free(void *zone){
      * blocks libres.
      */
 
+    // TODO : si plus de place, on donne une erreur avec le search_func !
+
     while(courant != zone && courant != NULL){
         prec=courant;
         courant=courant->next_busy;
