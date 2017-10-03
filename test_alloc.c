@@ -43,7 +43,8 @@ void alloc_big(){
 
 void alloc_alot(){
     void* pointers[NB_POINTERS];
-    for (int i=0; i<NB_TESTS; i++) {
+    printf("Allocation des %d blocs...\n", NB_POINTERS);
+    for (int i=0; i<NB_POINTERS; i++) {
         int size;
         if (i < 10)
             size = rand()%1000;
@@ -56,15 +57,10 @@ void alloc_alot(){
         pointers[i] = alloc(size);
     }
     mem_show(afficher_zone);
-    printf("Libération\n");
-    mem_free(pointers[10]);
-    mem_free(pointers[11]);
-    mem_free(pointers[11]); /* le double free est détecté */
-    mem_free(pointers[13]);
-    mem_free(pointers[14]);
-    mem_free(pointers[15]);
-    mem_show(afficher_zone);
-    pointers[10] = alloc(2);
+    printf("Libération des %d blocs...\n", NB_POINTERS);
+    for (int i=0; i<NB_POINTERS; i++) {
+        mem_free(pointers[i]);
+    }
     mem_show(afficher_zone);
 }
 
@@ -73,20 +69,21 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "Test réalisant plusieurs allocations de taille variable.\n");
     mem_init(get_memory_adr(), get_memory_size());
 
-    mem_show(afficher_zone);
-    char* test = (char*) alloc(50);
-    for (int i = 0; i < 50; i++){
-        test[i] = 0;
-    }
-    test[49] = 0;
-    printf("Test (%p): %s\n", test, test);
+    /*
+     * TODO: tout allouer (par petit morceaux), tout désallouer, puis réallouer soit un gros bloc, soit pleins de ptits
+     *
+     */
     
     /*
     mem_show(afficher_zone);
     mem_free(test);
     mem_show(afficher_zone);
     */
-    alloc_alot();
+
+    for (int i = 0; i < NB_TESTS; i++){
+        printf("Allocation stress test #%d\n", i);
+        alloc_alot();
+    }
     //alloc_big();
 
     // TEST OK
