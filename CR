@@ -1,0 +1,15 @@
+Rapport TP2 – Conception des Systèmes d’Exploitation
+
+Introduction
+Ce compte rendu regroupe des informations sur notre implémentation d’un allocateur mémoire. Il présenta nos choix justifiés d’implantation, les fonctionnalités et limites de notre code, les extensions et les tests que nous avons réalisés.
+Choix d’implémentation
+La taille stocké par notre structure de bloc inclue la place nécéssaire à l’entête du code.
+Fonctionnalités
+
+Limites de notre code
+
+Extensions
+
+Tests réalisés
+Le test de multiples allocations maximales fourni a été effectué avec succès.
+D’autres tests ont été réalisés dans test_alloc : des allocations trop grosses, des libérations sur la même zone mémoire, une suite d’allocation avec quelques libérations, puis réallocation pour voir si les zones libérées seraient réutilisées...
