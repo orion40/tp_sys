@@ -64,7 +64,7 @@ void alloc_alot(){
     mem_free(pointers[14]);
     mem_free(pointers[15]);
     mem_show(afficher_zone);
-    pointers[10] = alloc(2);
+    pointers[14] = alloc(2);
     mem_show(afficher_zone);
 }
 
