@@ -98,9 +98,6 @@ void* mem_alloc(size_t size){
 }
 
 void mem_free(void *zone){
-    /* vérifie si on essaye de libéré un block null */
-    if (zone == NULL) return;
-
     zone = zone - sizeof(fb);
 
     /* vérifie les double free */
