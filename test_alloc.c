@@ -20,6 +20,17 @@ static void *alloc(size_t estimate) {
     return result;
 }
 
+static void *big_alloc(size_t estimate) {
+    void* result;
+
+    while ((result = mem_alloc(estimate)) == NULL) {
+        estimate--;
+    }
+
+    debug("Alloced %zu bytes at %p\n", estimate, result);
+    return result;
+}
+
 void afficher_zone(void *adresse, size_t taille, int free)
 {
     printf("Zone %s, Adresse : %lx, Taille : %zu\n", free?"libre":"occupee",
@@ -27,11 +38,7 @@ void afficher_zone(void *adresse, size_t taille, int free)
 }
 
 void alloc_big(){
-    printf("Allocation de toute la mémoire (%zu)...\n", get_memory_size());
-    mem_show(afficher_zone);
-    void* big = alloc(get_memory_size());
-    mem_free(big);
-    mem_show(afficher_zone);
+    big_alloc(get_memory_size());
 }
 
 void alloc_alot(){
@@ -57,20 +64,27 @@ void alloc_alot(){
     mem_show(afficher_zone);
 }
 
-
-
 int main(int argc, char *argv[]) {
     srand(time(NULL));
     fprintf(stderr, "Test réalisant plusieurs allocations de taille variable.\n");
     mem_init(get_memory_adr(), get_memory_size());
 
+    /*
+     * TODO: tout allouer (par petit morceaux), tout désallouer, puis réallouer soit un gros bloc, soit pleins de ptits
+     *
+     */
+    
+    /*
+    mem_show(afficher_zone);
+    mem_free(test);
+    mem_show(afficher_zone);
+    */
+
     for (int i = 0; i < NB_TESTS; i++){
         printf("Allocation stress test #%d\n", i);
         alloc_alot();
     }
-    alloc_big();
-
-
+    //alloc_big();
 
     // TEST OK
     return 0;

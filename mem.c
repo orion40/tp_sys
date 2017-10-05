@@ -2,7 +2,6 @@
 
 /* TODO: a virer */
 #include "stdio.h"
-#include "limits.h"
 
 /* Implémentation de mem.c
  */
@@ -32,19 +31,15 @@ void mem_init(char* mem, size_t taille){
 
     block_list_start = (fb*) mem;
     max_size = first_fb->size;
-    
-    //mem_fit(mem_fit_first);
-    mem_fit(mem_fit_best);
+
+    mem_fit(mem_fit_first);
 }
 
 void* mem_alloc(size_t size){
     /* D'abord on calcule la bonne_taille multiple de 2 la plus proche de
      * size + sizeof(fb).
      */
-    /* On alloue la taille demandée, + la taille de la structure, plus un
-     * pointeur fb* faisant office de garde.
-     */
-    size_t real_size = size + sizeof(fb) + sizeof(fb*); 
+    size_t real_size = size + sizeof(fb);
     size_t good_size = 32; /* on commence à 32 car la taille réelle est 
                              forcement supérieure ou égale , vu que la 
                              struct est de taille 24 */
@@ -85,12 +80,6 @@ void* mem_alloc(size_t size){
          ((fb*)result)->is_free = 0;
          ((fb*)result)->next_block = result + good_size;
 
-         // Création de la garde mémoire
-         // On veut stocker l'adresse de result plus loin
-         
-         fb** m_guard = (fb**)(result + good_size - sizeof(void*));
-         *m_guard = (fb*)result;
-
          return (void *) (result + sizeof(fb));
      }
 
@@ -102,18 +91,11 @@ void mem_free(void *zone){
     if (zone == NULL) return;
 
     zone = zone - sizeof(fb);
-
     /* vérifie les double free */
     if((((fb*)zone)->is_free) == 1){
         printf("déjà libre\n");//pour voir le cas dans les tests
         return;
     }
-    
-    /* vérification de la garde mémoire */
-    if ((fb*)zone != (fb*)(zone + ((fb*)zone)->size)){
-        fprintf(stderr, "ERROR: MEMORY CORRUPTION DETECTED\n");
-    }
-
     /*pour vérifier si le bloc précedent est libre doit parcourir la file
       pour le trouver*/
     fb *courant=block_list_start;
@@ -200,27 +182,7 @@ struct fb* mem_fit_first(struct fb *list, size_t size){
 
 /* Si vous avez le temps */
 struct fb* mem_fit_best(struct fb *list, size_t size){
-    /* On veut allouer dans un bloc avec une taille optimale, CAD aussi
-     * proche que possible de size
-     * Il faut donc parcourir toute la liste jusquà trouver la meilleure
-     * taille. */
-    fb* current_block = list;
-    fb* best_block = list;
-    int best_size = INT_MAX;
-    while (current_block != NULL){
-        // TODO: pourquoi est-ce qu'on alloue des blocs à la meme adresse ?
-        // puis après on boucle comme un *** ?
-        // est-ce que c'est mem_guard qui pose soucis ?
-        if (current_block->size >= size && current_block->is_free == 1){
-            if (current_block->size < best_size){
-                best_size = current_block->size;
-                best_block = current_block;
-            }
-        }
-        current_block = current_block->next_block;
-    }
-
-    return best_block;
+    return NULL;
 }
 
 struct fb* mem_fit_worst(struct fb *list, size_t size){

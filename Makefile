@@ -7,7 +7,7 @@ CC=gcc
 CFLAGS= $(HOST32) -Wall -std=c99 -ggdb -DMEMORY_SIZE=128000 -Werror 
 CFLAGS+= -DDEBUG
 LDFLAGS= $(HOST32)
-TESTS+=test_init test_alloc test_corruption
+TESTS+=test_init test_alloc
 PROGRAMS=memshell $(TESTS)
 
 .PHONY: clean all test_ls

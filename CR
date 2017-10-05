@@ -3,20 +3,13 @@ Rapport TP2 – Conception des Systèmes d’Exploitation
 Introduction
 Ce compte rendu regroupe des informations sur notre implémentation d’un allocateur mémoire. Il présenta nos choix justifiés d’implantation, les fonctionnalités et limites de notre code, les extensions et les tests que nous avons réalisés.
 Choix d’implémentation
-Pour représenter un bloc mémoire, nous avons choisi une structure contenant la taille du bloc, un int représentant l'état (libre (1) ou non(0)), puis un pointeur sur le prochain bloc qui voudra NULL s'il nexiste pas.
-La taille stocké par notre structure de bloc inclue la place nécéssaire à l’entête du block mémoire.
+La taille stocké par notre structure de bloc inclue la place nécéssaire à l’entête du code.
 Fonctionnalités
-Il est possible d'allouer et libérer de la mémoire.
-L'algorithme de First Fit est implémenté.
-La libération de la mémoire est capable de détecté un dépassement de bloc. Cependant il n'est pour le moment pas possible de faire planter le programme pour indiquer une erreur sans avoir recours à une librairie externe.
 
 Limites de notre code
 
 Extensions
 
-Une copie de l'adresse du bloc courant est écrite à la fin de la zone mémoire allouée pour ce bloc. A la libération, on compare les deux valeurs et affichons une erreur si elles ne sont pas correctes. Pour un vrai OS, il serait beaucoup mieux de marquer cette zone comme non écrivable, ce qui planterai le programme et empêcherait certaines erreurs d'écritures (mais pas toutes).
-
 Tests réalisés
 Le test de multiples allocations maximales fourni a été effectué avec succès.
 D’autres tests ont été réalisés dans test_alloc : des allocations trop grosses, des libérations sur la même zone mémoire, une suite d’allocation avec quelques libérations, puis réallocation pour voir si les zones libérées seraient réutilisées...
-test_corruption teste le cas ou l'on alloue deux blocs, et écrivant dans le premier une information plus grande que sa taille réelle.
