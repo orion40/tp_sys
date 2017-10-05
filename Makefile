@@ -4,7 +4,7 @@ CC=gcc
 # on Debian/Ubuntu)
 #HOST32= -m32
 
-CFLAGS= $(HOST32) -Wall -std=c99 -ggdb -DMEMORY_SIZE=128000  -Werror 
+CFLAGS= $(HOST32) -Wall -std=c99 -ggdb -DMEMORY_SIZE=128000 -Werror 
 CFLAGS+= -DDEBUG
 LDFLAGS= $(HOST32)
 TESTS+=test_init test_alloc test_corruption
