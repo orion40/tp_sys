@@ -9,7 +9,7 @@
 #include <time.h>
 #include <assert.h>
 
-#define NB_TESTS 20
+#define NB_TESTS 1
 #define NB_POINTERS 40
 
 static void *alloc(size_t estimate) {

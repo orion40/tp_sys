@@ -49,7 +49,7 @@ void* mem_alloc(size_t size){
 
     /* calcul la taille optimale */
     while(good_size < real_size){
-        good_size = good_size << 1;
+        good_size = good_size << 1;//multiplication par 2
     }
     
     /* la taille optimale est trop grande */

@@ -1,15 +1,54 @@
 Rapport TP2 – Conception des Systèmes d’Exploitation
+Binôme AK: BOZON et DOUARD (groupe 1)
 
 Introduction
-Ce compte rendu regroupe des informations sur notre implémentation d’un allocateur mémoire. Il présenta nos choix justifiés d’implantation, les fonctionnalités et limites de notre code, les extensions et les tests que nous avons réalisés.
-Choix d’implémentation
-La taille stocké par notre structure de bloc inclue la place nécéssaire à l’entête du code.
-Fonctionnalités
+Ce compte rendu regroupe des informations sur notre implémentation d’un 
+allocateur mémoire. Il présenta nos choix justifiés d’implantation, les 
+fonctionnalités et limites de notre code, les extensions et les tests que 
+nous avons réalisés.
 
-Limites de notre code
 
-Extensions
+Choix d’implémentation:
+La taille stockée par notre structure de blocs inclue la place nécéssaire à 
+l’entête du code./////////////////////////////////////////////////TODO:expliquer cette phrase au binome
+Une seule structure et utilisée pour mémoriser les blocs libres et alloués
+(cf:limite de l'implémentation)
 
-Tests réalisés
+
+Fonctionnalités:
+Les fonctions implémentées sont mem_init, mem_fit,mem_alloc, mem_free, 
+mem_get_size, mem_show, et mem_fit_first.
+
+
+Limites de l'implémentation:
+Notre programme est implémenté en utilisant une seule structure pour mémoriser 
+les blocs libres et alloués. Cette implémentation simplifie la recherche 
+des blocs voisins par exemple pour mem_free qui doit vérifier si les voisins
+sont libres pour effectuer une fusion mais pour la recherche d'un bloc libre 
+(dans mem_fit_first) cela est beaucoup plus couteux car il faut parcourir une
+structure plus grande et qui contient de l'information non utilisable par
+cette fonction (les blocs occupés).
+
+
+Extensions:
+Nous n'avons pas d'extensions fonctionnelles à présenter.
+
+
+Tests réalisés:
 Le test de multiples allocations maximales fourni a été effectué avec succès.
-D’autres tests ont été réalisés dans test_alloc : des allocations trop grosses, des libérations sur la même zone mémoire, une suite d’allocation avec quelques libérations, puis réallocation pour voir si les zones libérées seraient réutilisées...
+D’autres tests ont été réalisés dans test_alloc : des allocations trop grosses, 
+des libérations sur la même zone mémoire, une suite d’allocation avec quelques 
+libérations, puis réallocation pour voir si les zones libérées seraient 
+réutilisées...
+Remarque: lors du déroullement des tests on peut appercevoir:
+"Alloced 39950 bytes at (nil)
+Alloced 10580 bytes at (nil)
+Alloced 3432 bytes at 0x61dbb8
+Alloced 8773 bytes at (nil)
+Alloced 14206 bytes at (nil)
+Alloced 37582 bytes at (nil)
+Alloced 17515 bytes at (nil)
+Alloced 18749 bytes at (nil)"
+C'est tout à fait normal: nous avons tenté d'alloués des blocs trop grands
+et l'espace n'est pas suffisant pour l'autoriser la fonction alloc 
+renvie alors une adresse nulle à l'utilisateur.
