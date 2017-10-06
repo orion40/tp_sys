@@ -36,7 +36,7 @@ void mem_init(char* mem, size_t taille){
 }
 
 void* mem_alloc(size_t size){
-    /* D'abord on calcule la bonne_taille multiple de 2 la plus proche de
+    /* D'abord on calcule la bonne_taille puissance de 2 la plus proche de
      * size + sizeof(fb).
      */
     size_t real_size = size + sizeof(fb);
@@ -164,8 +164,8 @@ void mem_fit(mem_fit_function_t* fit_func){
     search_func = fit_func;
 }
 
-/* On parcourt la liste en testant si les blocs on suffisament d'espace, 
- * et qu'ils sont libres. On fait attention a tester si current_block
+/* On parcourt la liste en testant si les blocs qui ont suffisament d'espace 
+ * et sont libres. On fait attention a tester si current_block
  * est NULL, afin d'éviter un segfault.
  */
 struct fb* mem_fit_first(struct fb *list, size_t size){
@@ -176,7 +176,6 @@ struct fb* mem_fit_first(struct fb *list, size_t size){
             if (current_block == NULL) break;
         }
     }
-
     return current_block;
 }
 
