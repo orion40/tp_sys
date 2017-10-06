@@ -9,10 +9,10 @@ nous avons réalisés.
 
 
 Choix d’implémentation:
-La taille stockée par notre structure de blocs inclue la place nécéssaire à 
-l’entête du code./////////////////////////////////////////////////TODO:expliquer cette phrase au binome
-Une seule structure et utilisée pour mémoriser les blocs libres et alloués
-(cf:limite de l'implémentation)
+Dans notre structure, nous avons un size_t représentant la taille de TOUT
+le bloc mémoire, entête de la structure incluse.
+Une seule structure est utilisée pour mémoriser les blocs libres et alloués
+(cf:limite de l'implémentation).
 
 
 Fonctionnalités:
@@ -26,7 +26,7 @@ les blocs libres et alloués. Cette implémentation simplifie la recherche
 des blocs voisins par exemple pour mem_free qui doit vérifier si les voisins
 sont libres pour effectuer une fusion mais pour la recherche d'un bloc libre 
 (dans mem_fit_first) cela est beaucoup plus couteux car il faut parcourir une
-structure plus grande et qui contient de l'information non utilisable par
+liste plus grande et qui contient de l'information non utilisable par
 cette fonction (les blocs occupés).
 
 
@@ -40,7 +40,7 @@ D’autres tests ont été réalisés dans test_alloc : des allocations trop gro
 des libérations sur la même zone mémoire, une suite d’allocation avec quelques 
 libérations, puis réallocation pour voir si les zones libérées seraient 
 réutilisées...
-Remarque: lors du déroullement des tests on peut appercevoir:
+Remarque: lors du déroullement des tests on peut par exemple apercevoir:
 "Alloced 39950 bytes at (nil)
 Alloced 10580 bytes at (nil)
 Alloced 3432 bytes at 0x61dbb8
@@ -51,4 +51,4 @@ Alloced 17515 bytes at (nil)
 Alloced 18749 bytes at (nil)"
 C'est tout à fait normal: nous avons tenté d'alloués des blocs trop grands
 et l'espace n'est pas suffisant pour l'autoriser la fonction alloc 
-renvie alors une adresse nulle à l'utilisateur.
+renvoie alors une adresse nulle à l'utilisateur.

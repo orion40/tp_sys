@@ -110,13 +110,15 @@ void mem_free(void *zone){
     }
     if (prec != NULL){
         if(prec->is_free==1){
-            if((courant->next_block)==NULL || (courant->next_block)->is_free==0){
+            if((courant->next_block)==NULL 
+                    || (courant->next_block)->is_free==0){
                 //prec libre,suiv occ ou null
                 prec->size=(prec->size)+(courant->size);
                 prec->next_block=courant->next_block;
             }else{
                 //prec et suiv libres
-                prec->size=(prec->size)+(courant->size)+(courant->next_block->size);
+                prec->size = 
+                    (prec->size)+(courant->size)+(courant->next_block->size);
                 prec->next_block=(courant->next_block)->next_block;
             }
         }else{
@@ -153,7 +155,8 @@ size_t mem_get_size(void *zone){
 void mem_show(void (*print)(void *, size_t, int free)){
     fb* current_block = block_list_start;
     while (current_block != NULL){
-        print(current_block + sizeof(fb), current_block->size, current_block->is_free);
+        print(current_block + sizeof(fb), 
+                current_block->size, current_block->is_free);
         current_block = current_block->next_block;
     }
 }
